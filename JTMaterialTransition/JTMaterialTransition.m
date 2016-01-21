@@ -58,7 +58,9 @@
     }
     
     UIViewController *presentedController;
+    UIViewController *fromViewController;
     if(!self.isReverse){
+        fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
         presentedController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
         
         presentedController.view.frame = transitionContext.containerView.bounds;
@@ -66,12 +68,16 @@
         [transitionContext.containerView addSubview:presentedController.view];
     }
     else{
+        fromViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
         presentedController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
         
         presentedController.view.frame = transitionContext.containerView.bounds;
         [transitionContext.containerView addSubview:presentedController.view];
     }
     
+    [fromViewController beginAppearanceTransition:self.isReverse animated: YES];
+    [presentedController beginAppearanceTransition:!self.isReverse animated: YES];
+
     if(!self.isReverse){
         [UIView transitionWithView:animatedViewForTransition
                           duration:[self transitionDuration:transitionContext] * .7
@@ -90,6 +96,9 @@
                          } completion:^(BOOL finished) {
                              [animatedViewForTransition removeFromSuperview];
                              [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
+                             [fromViewController endAppearanceTransition];
+                             [presentedController endAppearanceTransition];
+
                          }];
     }
     else{
@@ -113,6 +122,9 @@
                             } completion:^(BOOL finished) {
                                 [animatedViewForTransition removeFromSuperview];
                                 [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
+                                [fromViewController endAppearanceTransition];
+                                [presentedController endAppearanceTransition];
+
                             }];
         });
     }
